@@ -1,7 +1,8 @@
 class SearchFacade
 
   def initialize(state)
-    @state = state
+    @state          = state
+    @_search_result = nil
   end
 
   def member_count
@@ -9,30 +10,22 @@ class SearchFacade
   end
 
   def members
-    members_hashes = get_json[:results]
-    members_hashes.map do |member_hash|
-      Member.new(member_hash)
+    search_result[:results].map do |member_data|
+      Member.new(member_data)
     end
   end
 
   def copyright
-    get_json[:copyright]
+    search_result[:copyright]
   end
 
   private
 
-  def get_json
-    @response ||= conn.get("/congress/v1/members/house/#{@state}/current.json")
-
-    @parsed ||= JSON.parse(@response.body, symbolize_names: true)
+  def search_result
+    @_search_result ||= service.members_of_house
   end
 
-  def conn
-    Faraday.new(:url => 'https://api.propublica.org') do |faraday|
-      faraday.headers['X-Api-Key'] = ENV["propublica_key"]
-      faraday.adapter  Faraday.default_adapter
-    end
+  def service
+    PropublicaService.new({state: @state})
   end
-
-
 end

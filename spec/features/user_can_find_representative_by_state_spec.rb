@@ -3,9 +3,10 @@ require 'rails_helper'
 
 feature "user can find representative by state" do
   scenario "user submits valid state name" do
-    # As a user
-
-    # When I visit "/"
+    stub_request(:get, "https://api.propublica.org/congress/v1/members/house/CO/current.json").
+      to_return(body: File.read("./spec/fixtures/members_of_house.json"))
+    #  As a user
+    #  When I visit "/"
     visit '/'
 
     # And I select "Colorado" from the dropdown
@@ -40,6 +41,5 @@ feature "user can find representative by state" do
     end
 
     expect(page).to have_content("Copyright (c) 2018 Pro Publica Inc. All Rights Reserved.")
-
   end
 end
